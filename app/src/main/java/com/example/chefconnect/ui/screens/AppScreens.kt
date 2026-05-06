@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -40,7 +41,12 @@ fun CategoriesScreen(viewModel: MealViewModel, navController: NavController) {
                         .clickable { navController.navigate("grid/${cat.strCategory}") }
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        AsyncImage(model = cat.strCategoryThumb, contentDescription = null, modifier = Modifier.height(120.dp))
+                        AsyncImage(
+                            model = cat.strCategoryThumb,
+                            contentDescription = null,
+                            modifier = Modifier.height(120.dp),
+                            placeholder = painterResource(id = android.R.drawable.ic_menu_gallery)
+                        )
                         Text(cat.strCategory, Modifier.padding(8.dp), style = MaterialTheme.typography.titleMedium)
                     }
                 }
@@ -63,7 +69,12 @@ fun MealGridScreen(category: String, viewModel: MealViewModel, navController: Na
                         .padding(8.dp)
                         .clickable { navController.navigate("details/${meal.idMeal}") }) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            AsyncImage(model = meal.strMealThumb, contentDescription = null, modifier = Modifier.height(120.dp))
+                            AsyncImage(
+                                model = meal.strMealThumb,
+                                contentDescription = null,
+                                modifier = Modifier.height(120.dp),
+                                placeholder = painterResource(id = android.R.drawable.ic_menu_gallery)
+                            )
                             Text(meal.strMeal, Modifier.padding(8.dp), maxLines = 1)
                             Button(onClick = { viewModel.toggleFavorite(meal) }, modifier = Modifier.padding(bottom = 8.dp)) {
                                 Text(if (viewModel.favorites.contains(meal)) "Quitar Fav" else "Favorito")
@@ -91,8 +102,13 @@ fun SearchScreen(viewModel: MealViewModel, navController: NavController) {
             is MealState.Success -> LazyVerticalGrid(columns = GridCells.Fixed(2)) {
                 items(state.meals) { meal ->
                     Card(modifier = Modifier.padding(8.dp).clickable { navController.navigate("details/${meal.idMeal}") }) {
-                        Column {
-                            AsyncImage(model = meal.strMealThumb, contentDescription = null, modifier = Modifier.height(100.dp))
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            AsyncImage(
+                                model = meal.strMealThumb,
+                                contentDescription = null,
+                                modifier = Modifier.height(100.dp),
+                                placeholder = painterResource(id = android.R.drawable.ic_menu_gallery)
+                            )
                             Text(meal.strMeal, Modifier.padding(8.dp), maxLines = 1)
                         }
                     }

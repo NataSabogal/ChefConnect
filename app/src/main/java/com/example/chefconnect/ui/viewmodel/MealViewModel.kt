@@ -35,9 +35,7 @@ class MealViewModel(private val repository: MealRepository) : ViewModel() {
             searchQuery
                 .debounce(500)
                 .filter { it.isNotBlank() }
-                .collect { query ->
-                    search(query)
-                }
+                .collect { query -> search(query) } // Aquí está la corrección
         }
     }
 
