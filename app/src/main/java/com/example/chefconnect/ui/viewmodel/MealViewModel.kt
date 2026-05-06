@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 sealed class MealState {
     object Loading : MealState()
     data class Success(val meals: List<Meal>) : MealState()
+    data class DetailSuccess(val meal: Meal) : MealState() // Nuevo estado para el detalle
     data class Error(val message: String) : MealState()
 }
 
@@ -35,7 +36,7 @@ class MealViewModel(private val repository: MealRepository) : ViewModel() {
             searchQuery
                 .debounce(500)
                 .filter { it.isNotBlank() }
-                .collect { query -> search(query) } // Aquí está la corrección
+                .collect { query -> search(query) }
         }
     }
 
@@ -52,9 +53,7 @@ class MealViewModel(private val repository: MealRepository) : ViewModel() {
             try {
                 val response = repository.getMealsByCategory(category)
                 mealState = MealState.Success(response.meals ?: emptyList())
-            } catch (e: Exception) {
-                mealState = MealState.Error("Error al cargar platillos")
-            }
+            } catch (e: Exception) { mealState = MealState.Error("Error al cargar platillos") }
         }
     }
 
@@ -70,7 +69,22 @@ class MealViewModel(private val repository: MealRepository) : ViewModel() {
         } catch (e: Exception) { mealState = MealState.Error("Error de búsqueda") }
     }
 
+    // NUEVO: Función para buscar el detalle de un plato
+    fun fetchMealDetail(id: String) {
+        viewModelScope.launch {
+            mealState = MealState.Loading
+            try {
+                val response = repository.getMealDetails(id)
+                response.meals?.firstOrNull()?.let {
+                    mealState = MealState.DetailSuccess(it)
+                } ?: run { mealState = MealState.Error("Plato no encontrado") }
+            } catch (e: Exception) { mealState = MealState.Error("Error de red") }
+        }
+    }
+
     fun toggleFavorite(meal: Meal) {
-        if (favorites.contains(meal)) favorites.remove(meal) else favorites.add(meal)
+        // Buscamos si ya existe por ID
+        val exists = favorites.find { it.idMeal == meal.idMeal }
+        if (exists != null) favorites.remove(exists) else favorites.add(meal)
     }
 }
